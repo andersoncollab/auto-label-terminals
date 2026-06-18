@@ -1,0 +1,79 @@
+{
+  "name": "auto-label-terminals",
+  "displayName": "Auto Label Terminals",
+  "description": "Open terminals with a random native color + icon and auto-launch your AI CLI (Claude, Gemini, ...).",
+  "version": "0.1.0",
+  "publisher": "andersoncollab",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "terminal",
+    "tab color",
+    "ai",
+    "claude",
+    "gemini"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andersoncollab/auto-label-terminals.git"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:autoLabelTerminals.newAiSession",
+    "onCommand:autoLabelTerminals.newColoredTerminal"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "autoLabelTerminals.newAiSession",
+        "title": "Auto Label Terminals: New AI Session",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "autoLabelTerminals.newColoredTerminal",
+        "title": "Auto Label Terminals: New Colored Terminal"
+      }
+    ],
+    "configuration": {
+      "title": "Auto Label Terminals",
+      "properties": {
+        "autoLabelTerminals.commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "claude",
+            "gemini"
+          ],
+          "description": "AI CLI commands offered by 'New AI Session'. If more than one is listed, you'll be prompted to choose."
+        },
+        "autoLabelTerminals.randomColor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Assign a random native tab color to terminals opened by this extension."
+        },
+        "autoLabelTerminals.randomIcon": {
+          "type": "boolean",
+          "default": true,
+          "description": "Assign a random native tab icon to terminals opened by this extension."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "autoLabelTerminals.newAiSession"
+        },
+        {
+          "command": "autoLabelTerminals.newColoredTerminal"
+        }
+      ]
+    }
+  }
+}
