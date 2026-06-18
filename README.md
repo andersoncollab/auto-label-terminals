@@ -50,10 +50,13 @@ bash hook/install.sh both      # or: claude  |  gemini
 
 Fires on the **first prompt** of a new session. Start a fresh session to test.
 
-**Claude Code overwrites the tab title** with its own topic/version string, so the
-installer sets `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` (in `~/.claude/settings.json`
-and you should also `export` it in your shell rc, since Claude reads it at
-startup). Gemini doesn't touch the title, so no switch is needed there.
+> **Heads up on Claude Code:** Claude manages its own tab title (it shows the
+> conversation topic) and **reclaims the title after every turn**. There is no
+> switch to turn that off — `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` only controls
+> the title *reset on shutdown*, not the in-session title. So on **Claude** the
+> hook label is only transient; for a **sticky** colored+iconed Claude tab, use
+> the **extension** below. On **Gemini** (which doesn't manage the title) the
+> hook label sticks perfectly.
 
 If the hook doesn't fire, open `/hooks` once (reloads config) or restart. To
 uninstall, remove the `UserPromptSubmit` entry pointing at `auto-label-terminal.sh`

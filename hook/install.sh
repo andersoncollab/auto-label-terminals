@@ -8,11 +8,13 @@
 # UserPromptSubmit hook in the target tool's settings.json, merging with any
 # existing hooks (never clobbers them). Idempotent.
 #
-# Claude Code actively manages the terminal title (it writes the conversation
-# topic / version), so for Claude we also set CLAUDE_CODE_DISABLE_TERMINAL_TITLE
-# so our label isn't immediately overwritten. Gemini CLI does not touch the
-# title, so no such switch is needed there — and Gemini's hook schema is
-# Claude-compatible, so the same script works as-is.
+# NOTE on Claude: Claude Code manages its own tab title (the conversation topic)
+# and reclaims it after each turn. There is no documented switch to disable that
+# (CLAUDE_CODE_DISABLE_TERMINAL_TITLE only affects the title RESET on shutdown,
+# not the in-session title), so the hook label is only transient on Claude — use
+# the extension for a sticky native color+icon there. Gemini CLI does NOT manage
+# the title and its hook schema is Claude-compatible, so the label sticks on
+# Gemini with the same script.
 #
 # Requires: jq
 set -euo pipefail
@@ -42,13 +44,16 @@ register() { # $1 = settings.json path, $2 = "claude"|"gemini"
         | select( ([.hooks[]?.command] | any(. == $cmd)) | not ) ])
       + [ { "hooks": [ { "type":"command", "command":$cmd, "async":true, "timeout":5 } ] } ]
   ' "$settings" > "$tmp"
-  if [ "$tool" = "claude" ]; then
-    jq '.env = (.env // {}) | .env.CLAUDE_CODE_DISABLE_TERMINAL_TITLE = "1"' "$tmp" > "$tmp.2" && mv "$tmp.2" "$tmp"
-  fi
   jq empty "$tmp"
   mv "$tmp" "$settings"
   echo "✓ registered UserPromptSubmit hook in $settings"
-  [ "$tool" = "claude" ] && echo "✓ set CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1 (so Claude won't overwrite the label)"
+  if [ "$tool" = "claude" ]; then
+    echo "  NOTE: Claude Code manages its own tab title (the conversation topic),"
+    echo "  and reclaims it after each turn — there is no switch to disable this, so"
+    echo "  the hook label is only transient on Claude. For a STICKY color+icon on"
+    echo "  Claude tabs, use the extension (extension/). The hook fully sticks on"
+    echo "  Gemini, which does not manage the title."
+  fi
 }
 
 case "$target" in
@@ -60,9 +65,6 @@ case "$target" in
 esac
 
 echo
-if [ "$target" = "claude" ] || [ "$target" = "both" ]; then
-  echo "Claude: for reliability, also add to your shell rc (var is read at startup):"
-  echo "    export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1"
-fi
 echo "Done. The hook fires on the FIRST prompt of a NEW session. Start a fresh"
-echo "session to test."
+echo "session to test. On Claude the label is transient (Claude owns the title);"
+echo "use the extension for a sticky native color+icon on Claude tabs."
