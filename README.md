@@ -6,10 +6,21 @@ glance which tab is doing what.
 
 It comes in two complementary halves — use either or both:
 
-| | What it does | Where it works |
+| | What it does | Works with |
 | --- | --- | --- |
-| **Hook** (`hook/`) | Reads your **first prompt** of a Claude Code session and labels the tab `🟣 🚀 project — your prompt` (random color dot + task icon + summary). | Any terminal. The colored dot is in the tab **title**. |
-| **Extension** (`extension/`) | Opens a terminal with a **true native random color + icon**, then launches your AI CLI. | VS Code / Antigravity / Cursor and other VS Code forks. |
+| **Hook** (`hook/`) | Reads your **first prompt** and labels the tab `🟣 🚀 project — your prompt` (random color dot + task icon + summary). | **Claude Code** and **Gemini CLI** (Gemini's hook schema is Claude-compatible). |
+| **Extension** (`extension/`) | Opens a terminal with a **true native random color + icon**, then launches your AI CLI. | Any VS Code fork (Antigravity / Cursor / VS Code) + **any CLI** (Claude, Gemini, Codex, ...). |
+
+### "Fire it for Gemini, Codex, etc.?"
+
+- **Gemini CLI** — yes. Its hooks are Claude-Code-compatible (it even ships
+  `gemini hooks migrate --from-claude`). Run `bash hook/install.sh gemini`. Bonus:
+  Gemini doesn't manage the terminal title, so the label sticks with no extra config.
+- **Codex CLI** — Codex has a (trust-gated) hook system; a prompt-submit wiring is
+  on the roadmap. In the meantime the **extension** covers Codex: launch `codex`
+  through *New AI Session* for a native colored+iconed tab.
+- **Any other tool** — the extension is universal; add the command to
+  `autoLabelTerminals.commands`.
 
 ## The honest limitation (why there are two halves)
 
@@ -29,18 +40,24 @@ So:
 
 ## Quick start
 
-### Hook (Claude Code)
+### Hook (Claude Code and/or Gemini CLI)
 
 ```bash
 git clone https://github.com/andersoncollab/auto-label-terminals.git
 cd auto-label-terminals
-bash hook/install.sh
+bash hook/install.sh both      # or: claude  |  gemini
 ```
 
-Fires on your **next prompt** in a new Claude Code session. If it doesn't, open
-`/hooks` once (reloads config) or restart Claude Code. To uninstall, remove the
-`UserPromptSubmit` entry pointing at `auto-label-terminal.sh` from
-`~/.claude/settings.json`.
+Fires on the **first prompt** of a new session. Start a fresh session to test.
+
+**Claude Code overwrites the tab title** with its own topic/version string, so the
+installer sets `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` (in `~/.claude/settings.json`
+and you should also `export` it in your shell rc, since Claude reads it at
+startup). Gemini doesn't touch the title, so no switch is needed there.
+
+If the hook doesn't fire, open `/hooks` once (reloads config) or restart. To
+uninstall, remove the `UserPromptSubmit` entry pointing at `auto-label-terminal.sh`
+from the relevant `settings.json`.
 
 Hook env overrides: `ALT_ICONS=0` (no icon), `ALT_PROJECT=0` (no project name),
 `ALT_MAXLEN=N` (summary length).
